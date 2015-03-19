@@ -83,10 +83,18 @@ def main():
 
 		for event in pygame.event.get(): # User did something
 			screen.fill((0,0,0))
+
 			screen.blit(font.render(str(int(pitch*100)), True,(255,255,255)),pitch_label_pos)
 			screen.blit(font.render(str(int(roll*100)), True,(255,255,255)),roll_label_pos)
+
 			screen.blit(font.render(str(lservo), True,(255,255,255)),lservo_label_pos)
 			screen.blit(font.render(str(rservo), True,(255,255,255)),rservo_label_pos)
+
+			center = [Config.screen_width/2, Config.screen_height/2]
+			pygame.draw.line(screen, (255,0,0), center, [Config.screen_width/2, Config.screen_height/2+int(pitch*100)], 10)
+			pygame.draw.line(screen, (0,255,0), center, [Config.screen_width/2+int(roll*100), Config.screen_height/2], 10)
+
+
 			pygame.display.flip()
 			if event.type == pygame.QUIT: sys.exit()
 
