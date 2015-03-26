@@ -23,6 +23,7 @@ Pseudo-PWM servo interface description
     #0 - left servo
     #1 - right servo
 
+ISO convention {X-roll, Y-Pitch, Z-yaw}
 '''
 
 
@@ -38,13 +39,16 @@ def calc_checksum(servo_nr, value):
 
 def format_packet(servo_nr, value):
     checksum = calc_checksum(servo_nr, value)
-    packet="/"+str(servo_nr)+str(int(value)).zfill(3)+str(checksum)+"\\"
+    packet = "/"+str(servo_nr)+str(int(value)).zfill(3)+str(checksum)+"\\"
     return packet
 
 
 def set_servo(servo_nr, value):
-    #s = serial.Serial("/dev/ttyUSB0", 19200)
-    #s.write(format_packet(servo_nr, value))
+    try:
+        s = serial.Serial("/dev/ttyUSB0", 19200)
+        s.write(format_packet(servo_nr, value))
+    except serial.serialutil.SerialException:
+        print "Unable to open USB serial"
     time.sleep(.02)
 
 
@@ -59,25 +63,21 @@ def calc_right_drive(pitch, roll):
 def main():
     pygame.joystick.init()
     j = pygame.joystick.Joystick(0)
-
     j.init()
     pygame.init()
-
     window = Window()
 
     while 1:
         time.sleep(.01)
-        #ISO convention {X-roll, Y-Pitch, Z-yaw}
         pitch =(j.get_axis(1))
         roll =(j.get_axis(0))
-        #print str(pitch)+" "+str(roll)
         lservo = int(calc_left_drive(pitch, roll))
         rservo = int(calc_right_drive(pitch, roll))
         set_servo(0, lservo)
         set_servo(1, rservo)
 
-        for event in pygame.event.get(): # User did something
-            window.screen.fill((0,0,0))
+        for event in pygame.event.get():
+            window.screen.fill((0, 0, 0))
             window.set_pitch_value(pitch)
             window.set_roll_value(roll)
             window.set_lservo_value(lservo)
