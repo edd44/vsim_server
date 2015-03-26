@@ -28,28 +28,59 @@ class Config:
     drive_middle_position = 150
     drive_multiplier = 25
 
-    screen_height = 240
-    screen_width = 320
 
 def calc_checksum(servo_nr, value):
     s = str(int(value)).zfill(3)
     return (int(s[0])+int(s[1])+int(s[2])+servo_nr)%10
+
 
 def format_packet(servo_nr, value):
     checksum = calc_checksum(servo_nr, value)
     packet="/"+str(servo_nr)+str(int(value)).zfill(3)+str(checksum)+"\\"
     return packet
 
+
 def set_servo(servo_nr, value):
-    s = serial.Serial("/dev/ttyUSB0", 19200)
-    s.write(format_packet(servo_nr, value))
+    #s = serial.Serial("/dev/ttyUSB0", 19200)
+    #s.write(format_packet(servo_nr, value))
     time.sleep(.02)
+
 
 def calc_left_drive(pitch, roll):
     return (-pitch+roll)*Config.drive_multiplier+Config.drive_middle_position
 
+
 def calc_right_drive(pitch, roll):
     return (pitch+roll)*Config.drive_multiplier+Config.drive_middle_position
+
+
+class Window():
+    def __init__(self):
+        self.width = 320
+        self.height = 240
+        self.center = [int(self.width/2), int(self.height)/2]
+        self.size = (self.width, self.height)
+        self.screen = pygame.display.set_mode(self.size)
+        self.font = pygame.font.SysFont("calibri", 30)
+        self.pitch_label_pos = (self.width / 2, 10)
+        self.roll_label_pos = (10, self.height / 2)
+        self.lservo_label_pos = (10, self.height-30)
+        self.rservo_label_pos = (self.width-70, self.height-30)
+
+    def set_pitch_value(self, value):
+        self.screen.blit(self.font.render(str(int(value*100)), True, (255, 255, 255)), self.pitch_label_pos)
+        pygame.draw.line(self.screen, (255,0,0), self.center, [self.width/2, self.height/2+int(value*100)], 10)
+
+    def set_roll_value(self, value):
+        self.screen.blit(self.font.render(str(int(value*100)), True, (255, 255, 255)), self.roll_label_pos)
+        pygame.draw.line(self.screen, (255,0,0), self.center, [self.width/2+int(value*100), self.height/2], 10)
+
+    def set_rservo_value(self, value):
+        self.screen.blit(self.font.render(str(value), True, (255, 255, 255)), self.rservo_label_pos)
+
+    def set_lservo_value(self, value):
+        self.screen.blit(self.font.render(str(value), True, (255, 255, 255)), self.lservo_label_pos)
+
 
 def main():
     pygame.joystick.init()
@@ -57,18 +88,8 @@ def main():
 
     j.init()
     pygame.init()
-    size = width, height = Config.screen_width, Config.screen_height
-    screen = pygame.display.set_mode(size)
-    font = pygame.font.SysFont("calibri",30)
 
-    #middle_position = 150
-    #multiplier = -50
-    #position = middle_position
-
-    pitch_label_pos = (Config.screen_width / 2, 10)
-    roll_label_pos = (10, Config.screen_height / 2)
-    lservo_label_pos = (10, Config.screen_height-30)
-    rservo_label_pos = (Config.screen_width-70, Config.screen_height-30)
+    window = Window()
 
     while 1:
         time.sleep(.01)
@@ -82,19 +103,11 @@ def main():
         set_servo(1, rservo)
 
         for event in pygame.event.get(): # User did something
-            screen.fill((0,0,0))
-
-            screen.blit(font.render(str(int(pitch*100)), True,(255,255,255)),pitch_label_pos)
-            screen.blit(font.render(str(int(roll*100)), True,(255,255,255)),roll_label_pos)
-
-            screen.blit(font.render(str(lservo), True,(255,255,255)),lservo_label_pos)
-            screen.blit(font.render(str(rservo), True,(255,255,255)),rservo_label_pos)
-
-            center = [Config.screen_width/2, Config.screen_height/2]
-            pygame.draw.line(screen, (255,0,0), center, [Config.screen_width/2, Config.screen_height/2+int(pitch*100)], 10)
-            pygame.draw.line(screen, (0,255,0), center, [Config.screen_width/2+int(roll*100), Config.screen_height/2], 10)
-
-
+            window.screen.fill((0,0,0))
+            window.set_pitch_value(pitch)
+            window.set_roll_value(roll)
+            window.set_lservo_value(lservo)
+            window.set_rservo_value(rservo)
             pygame.display.flip()
             if event.type == pygame.QUIT: sys.exit()
 
