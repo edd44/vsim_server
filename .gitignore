@@ -43,3 +43,5 @@ serial
 sys
 time
 
+#PyCharm project files
+.idea/
