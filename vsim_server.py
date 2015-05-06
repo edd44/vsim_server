@@ -59,6 +59,13 @@ def calc_left_drive(pitch, roll):
 def calc_right_drive(pitch, roll):
     return (pitch+roll)*Config.drive_multiplier+Config.drive_middle_position
 
+def dump_results(results):
+    f = open('result_file','w')
+    f.write('time\tpitch\troll\n')
+    for entry in results:
+        f.write(str(entry['time']) + "\t" + "{:.3f}".format(entry['pitch'])+ "\t" + "{:.3f}".format(entry['roll']) + "\n")
+    f.write("\n")
+    f.close()
 
 def main():
     pygame.joystick.init()
@@ -66,6 +73,7 @@ def main():
     j.init()
     pygame.init()
     window = Window()
+    results = [];
 
     while 1:
         time.sleep(.01)
@@ -73,6 +81,7 @@ def main():
         roll =(j.get_axis(0))
         lservo = int(calc_left_drive(pitch, roll))
         rservo = int(calc_right_drive(pitch, roll))
+        results.append({'time': time.time(), 'pitch': pitch, 'roll': roll})
         set_servo(0, lservo)
         set_servo(1, rservo)
 
@@ -83,7 +92,9 @@ def main():
             window.set_lservo_value(lservo)
             window.set_rservo_value(rservo)
             pygame.display.flip()
-            if event.type == pygame.QUIT: sys.exit()
+            if event.type == pygame.QUIT:
+                dump_results(results)
+                sys.exit()
 
 if __name__ == "__main__":
     main()
