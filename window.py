@@ -3,8 +3,8 @@ import pygame
 
 class Window():
     def __init__(self):
-        self.width = 320
-        self.height = 240
+        self.width = 1600
+        self.height = 850
         self.center = [int(self.width/2), int(self.height)/2]
         self.size = (self.width, self.height)
         self.screen = pygame.display.set_mode(self.size)
@@ -16,11 +16,11 @@ class Window():
 
     def set_pitch_value(self, value):
         self.screen.blit(self.font.render(str(int(value*100)), True, (255, 255, 255)), self.pitch_label_pos)
-        pygame.draw.line(self.screen, (255,0,0), self.center, [self.width/2, self.height/2+int(value*100)], 10)
+        pygame.draw.line(self.screen, (255,0,0), self.center, [self.width/2, self.height/2+int(value*100*20)], 10)
 
     def set_roll_value(self, value):
         self.screen.blit(self.font.render(str(int(value*100)), True, (255, 255, 255)), self.roll_label_pos)
-        pygame.draw.line(self.screen, (255,0,0), self.center, [self.width/2+int(value*100), self.height/2], 10)
+        pygame.draw.line(self.screen, (255,0,0), self.center, [self.width/2+int(value*100*20), self.height/2], 10)
 
     def set_rservo_value(self, value):
         self.screen.blit(self.font.render(str(value), True, (255, 255, 255)), self.rservo_label_pos)
